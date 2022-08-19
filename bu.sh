@@ -1,6 +1,9 @@
 #!/bin/bash
+
 #
 # I save this across my Macs as "bu.sh" bc it's easy to type. This script originated as a shorthand for "brew update"
+# Stuff folks other than me are likely to use is now commented out
+# Pre-requisite: install brew: https://docs.brew.sh/Installation
 #
 brew update
 brew upgrade
@@ -9,7 +12,8 @@ brew upgrade --cask
 
 brew doctor
 brew missing
-apm upgrade -c false
+
+# apm upgrade -c false
 
 # bower update
 # npm update -g --force
