@@ -28,13 +28,20 @@
 #
 #==============================================================================
 
-pushd ~/GitHub
-for filename in /Users/matt/GitHub/*/; do
-  pushd $filename
-  echo $(pwd)
-#  git maintenance start
-  git pull
-  popd
+pushd ~/GitHub > /dev/null
+for repo_dir in */; do
+  if [ -d "$repo_dir" ]; then
+    pushd "$repo_dir" > /dev/null
+    echo "$(pwd)"
+    # Check if it's a git repository before attempting git operations
+    if [ -d ".git" ]; then
+      #  git maintenance start
+      git pull
+    else
+      echo "Warning: $repo_dir is not a git repository, skipping..."
+    fi
+    popd > /dev/null
+  fi
 done
-popd
+popd > /dev/null
 

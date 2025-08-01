@@ -159,7 +159,8 @@ display_gas_gauge() {
   printf "[%s%s] %d%%" "$gauge" "$spaces" $((current * 100 / total))
 }
 
-find "$SEARCH_DIR" -type d -name ".git" | while read -r git_dir; do
+# Use process substitution instead of pipe to avoid subshell variable scope issues
+while read -r git_dir; do
   repo_dir=$(dirname "$git_dir")
   repo_index=$((repo_index + 1))
   iteration_start=$(date +%s)
@@ -181,8 +182,8 @@ find "$SEARCH_DIR" -type d -name ".git" | while read -r git_dir; do
   reset_git_repo "$repo_dir"
 
   # Introduce a random sleep between 0 and 2 seconds
-    sleep_time=$((0 + RANDOM % 2))
-    sleep "$sleep_time"       
+  sleep_time=$((0 + RANDOM % 2))
+  sleep "$sleep_time"       
   
   # Update time per repo calculation after each iteration
   iteration_end=$(date +%s)
@@ -190,7 +191,7 @@ find "$SEARCH_DIR" -type d -name ".git" | while read -r git_dir; do
   if [ $repo_index -ge 5 ]; then
     time_per_repo=$(( (time_per_repo * (repo_index - 1) + iteration_time) / repo_index ))
   fi
-done
+done < <(find "$SEARCH_DIR" -type d -name ".git")
 
 end=$(date +%s)
 runtime=$((end - start))

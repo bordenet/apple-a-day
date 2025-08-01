@@ -53,29 +53,60 @@ brew update
 brew upgrade
 brew cleanup -s
 brew upgrade --cask
-brew untap homebrew/cask
 
 brew doctor
 brew missing
-apm upgrade -c false
 
-bower update
-npm update -g --force
-npm install -g npm --force
+# Update Atom packages if apm is available
+if command -v apm &> /dev/null; then
+  apm upgrade -c false
+else
+  echo "apm not found, skipping Atom package updates"
+fi
 
-brew install mas
+# Update bower and npm if available
+if command -v bower &> /dev/null; then
+  bower update
+else
+  echo "bower not found, skipping bower updates"
+fi
+
+if command -v npm &> /dev/null; then
+  npm update -g --force
+  npm install -g npm --force
+else
+  echo "npm not found, skipping npm updates"
+fi
+
+# Install mas if not already installed, then update Mac App Store apps
+if ! command -v mas &> /dev/null; then
+  brew install mas
+fi
 mas outdated
 echo "install with: mas upgrade"
 mas upgrade
 
-pushd ~/GitHub > /dev/null
-./reset_all_repos.sh -f
-popd > /dev/null
+# Update GitHub repositories using local script
+if [ -x "./reset_all_repos.sh" ]; then
+  ./reset_all_repos.sh -f ~/GitHub
+else
+  echo "reset_all_repos.sh not found or not executable, skipping repository resets"
+fi
 
-sudo -H pip install --upgrade pip
-sudo -H pip3 install --upgrade pip
+# Update pip packages if pip is available
+if command -v pip &> /dev/null; then
+  sudo -H pip install --upgrade pip
+else
+  echo "pip not found, skipping pip updates"
+fi
 
-#~/GitHub/fetch-github-projects.sh
+if command -v pip3 &> /dev/null; then
+  sudo -H pip3 install --upgrade pip
+else
+  echo "pip3 not found, skipping pip3 updates"
+fi
+
+# Optionally run fetch-github-projects.sh
+# ./fetch-github-projects.sh
+
 sudo softwareupdate --all --install --force -R
-
-# /bin/rm /Users/mattbordenet/Library/Mobile\ Documents/com\~apple\~CloudDocs/Backups/pass/*.plk
